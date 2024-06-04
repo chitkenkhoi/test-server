@@ -1,0 +1,54 @@
+// server.js
+const express = require('express');
+const app = express();
+const { createClient } = require('redis')
+app.use(express.json());
+const client = createClient({
+host:'redis-server',
+port 637
+// Define a route for the root URL
+app.get('/', (req, res) => {
+    res.send('Hello from Express!');
+});
+app.get('/hi',(req,res)=>{
+    res.send('hi')
+})
+app.post('/setData', async (req, res) => {
+    const data = req.body.data
+    const client = createClient({
+        host: 'redis-server', // Replace with your Redis host
+        port: 6379,
+    });
+    await client.connect();
+    await client.set('data', data)
+    res.send(`Set data ${data} sucessfully!`)
+})
+app.get('/getData', async (req, res) => {
+    const client = createClient();
+    await client.connect();
+    const data = await client.get('data')
+    if (data) {
+        res.send(`Found data ${data}`)
+    } else {
+        res.send('Data not found')
+    }
+})
+
+app.get('/sayHello', async (req, res) => {
+    const client = createClient();
+    await client.connect();
+    var turn = await client.get('hello')
+    if (turn) {
+        await client.set('hello', parseInt(turn) + 1)
+    } else {
+        await client.set('hello', 1)
+        turn = 0
+    }
+
+    res.send(`Met you ${turn} times!`)
+})
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

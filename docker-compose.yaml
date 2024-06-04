@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+     - "4000:3000"
+    volumes:
+     - .:/usr/src/app
+    depends_on:
+     - redis-server
+  redis-server:
+    image: "redis:alpine"
+    container_name: redis-server
+    expose:
+     - 6379
